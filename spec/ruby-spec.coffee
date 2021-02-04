@@ -103,7 +103,7 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[0]).toEqual value: ':', scopes: ['source.ruby', 'constant.other.symbol.hashkey.ruby', 'punctuation.definition.constant.ruby']
     expect(tokens[1]).toEqual value: 'foo', scopes: ['source.ruby', 'constant.other.symbol.hashkey.ruby']
     expect(tokens[2]).toEqual value: ' ', scopes: ['source.ruby']
-    expect(tokens[3]).toEqual value: '=>', scopes: ['source.ruby', 'punctuation.separator.key-value']
+    expect(tokens[3]).toEqual value: '=>', scopes: ['source.ruby', 'punctuation.separator.key-value.ruby']
     expect(tokens[4]).toEqual value: ' ', scopes: ['source.ruby']
     expect(tokens[5]).toEqual value: '1', scopes: ['source.ruby', 'constant.numeric.ruby']
 
@@ -116,8 +116,7 @@ describe "TextMate Ruby grammar", ->
     {tokens} = grammar.tokenizeLine('File:: read "test"')
     expect(tokens[0]).toEqual value: 'File', scopes: ['source.ruby', 'variable.other.constant.ruby']
     expect(tokens[1]).toEqual value: '::', scopes: ['source.ruby', 'punctuation.separator.method.ruby']
-    expect(tokens[2]).toEqual value: ' ', scopes: ['source.ruby']
-    expect(tokens[3]).toEqual value: 'read ', scopes: ['source.ruby']
+    expect(tokens[2]).toEqual value: ' read ', scopes: ['source.ruby']
 
     {tokens} = grammar.tokenizeLine('RbConfig::CONFIG')
     expect(tokens[0]).toEqual value: 'RbConfig', scopes: ['source.ruby', 'support.class.ruby']
@@ -130,6 +129,34 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[2]).toEqual value: ' ', scopes: ['source.ruby']
     expect(tokens[3]).toEqual value: 'CONFIG', scopes: ['source.ruby', 'variable.other.constant.ruby']
 
+    {tokens} = grammar.tokenizeLine('class A::B::C < ::D::E')
+    expect(tokens[0]).toEqual value: 'class', scopes: ['source.ruby', 'meta.class.ruby', 'keyword.control.class.ruby']
+    expect(tokens[2]).toEqual value: 'A', scopes: ['source.ruby', 'meta.class.ruby', 'entity.name.type.class.ruby']
+    expect(tokens[3]).toEqual value: '::', scopes: ['source.ruby', 'meta.class.ruby', 'punctuation.separator.namespace.ruby']
+    expect(tokens[4]).toEqual value: 'B', scopes: ['source.ruby', 'meta.class.ruby', 'entity.name.type.class.ruby']
+    expect(tokens[5]).toEqual value: '::', scopes: ['source.ruby', 'meta.class.ruby', 'punctuation.separator.namespace.ruby']
+    expect(tokens[6]).toEqual value: 'C', scopes: ['source.ruby', 'meta.class.ruby', 'entity.name.type.class.ruby']
+    expect(tokens[8]).toEqual value: '<', scopes: ['source.ruby', 'meta.class.ruby', 'punctuation.separator.inheritance.ruby']
+    expect(tokens[10]).toEqual value: '::', scopes: ['source.ruby', 'meta.class.ruby', 'entity.other.inherited-class.ruby', 'punctuation.separator.namespace.ruby']
+    expect(tokens[11]).toEqual value: 'D', scopes: ['source.ruby', 'meta.class.ruby', 'entity.other.inherited-class.ruby', 'entity.name.type.class.ruby']
+    expect(tokens[12]).toEqual value: '::', scopes: ['source.ruby', 'meta.class.ruby', 'entity.other.inherited-class.ruby', 'punctuation.separator.namespace.ruby']
+    expect(tokens[13]).toEqual value: 'E', scopes: ['source.ruby', 'meta.class.ruby', 'entity.other.inherited-class.ruby', 'entity.name.type.class.ruby']
+
+    {tokens} = grammar.tokenizeLine('class << A::B')
+    expect(tokens[0]).toEqual value: 'class', scopes: ['source.ruby', 'meta.class.ruby', 'keyword.control.class.ruby']
+    expect(tokens[2]).toEqual value: '<<', scopes: ['source.ruby', 'meta.class.ruby', 'punctuation.definition.variable.ruby']
+    expect(tokens[4]).toEqual value: 'A', scopes: ['source.ruby', 'meta.class.ruby', 'variable.other.object.ruby', 'entity.name.type.class.ruby']
+    expect(tokens[5]).toEqual value: '::', scopes: ['source.ruby', 'meta.class.ruby', 'variable.other.object.ruby', 'punctuation.separator.namespace.ruby']
+    expect(tokens[6]).toEqual value: 'B', scopes: ['source.ruby', 'meta.class.ruby', 'variable.other.object.ruby', 'entity.name.type.class.ruby']
+
+    {tokens} = grammar.tokenizeLine('module A::B::C')
+    expect(tokens[0]).toEqual value: 'module', scopes: ['source.ruby', 'meta.module.ruby', 'keyword.control.module.ruby']
+    expect(tokens[2]).toEqual value: 'A', scopes: ['source.ruby', 'meta.module.ruby', 'entity.other.inherited-class.module.ruby']
+    expect(tokens[3]).toEqual value: '::', scopes: ['source.ruby', 'meta.module.ruby', 'punctuation.separator.namespace.ruby']
+    expect(tokens[4]).toEqual value: 'B', scopes: ['source.ruby', 'meta.module.ruby', 'entity.other.inherited-class.module.ruby']
+    expect(tokens[5]).toEqual value: '::', scopes: ['source.ruby', 'meta.module.ruby', 'punctuation.separator.namespace.ruby']
+    expect(tokens[6]).toEqual value: 'C', scopes: ['source.ruby', 'meta.module.ruby', 'entity.name.type.module.ruby']
+
   it "tokenizes . separator", ->
     {tokens} = grammar.tokenizeLine('File.read "test"')
     expect(tokens[0]).toEqual value: 'File', scopes: ['source.ruby', 'support.class.ruby']
@@ -139,8 +166,82 @@ describe "TextMate Ruby grammar", ->
     {tokens} = grammar.tokenizeLine('File. read "test"')
     expect(tokens[0]).toEqual value: 'File', scopes: ['source.ruby', 'variable.other.constant.ruby']
     expect(tokens[1]).toEqual value: '.', scopes: ['source.ruby', 'punctuation.separator.method.ruby']
-    expect(tokens[2]).toEqual value: ' ', scopes: ['source.ruby']
-    expect(tokens[3]).toEqual value: 'read ', scopes: ['source.ruby']
+    expect(tokens[2]).toEqual value: ' read ', scopes: ['source.ruby']
+
+    {tokens} = grammar.tokenizeLine('def a.b(*args)')
+    expect(tokens[0]).toEqual value: 'def', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'keyword.control.def.ruby']
+    expect(tokens[2]).toEqual value: 'a', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby']
+    expect(tokens[3]).toEqual value: '.', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby', 'punctuation.separator.method.ruby']
+    expect(tokens[4]).toEqual value: 'b', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby']
+    expect(tokens[5]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.definition.parameters.ruby']
+    expect(tokens[6]).toEqual value: '*', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'storage.type.variable.ruby']
+    expect(tokens[7]).toEqual value: 'args', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'variable.parameter.function.ruby']
+    expect(tokens[8]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.definition.parameters.ruby']
+
+    {tokens} = grammar.tokenizeLine('def a.b *args')
+    expect(tokens[0]).toEqual value: 'def', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'keyword.control.def.ruby']
+    expect(tokens[2]).toEqual value: 'a', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby']
+    expect(tokens[3]).toEqual value: '.', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby', 'punctuation.separator.method.ruby']
+    expect(tokens[4]).toEqual value: 'b', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby']
+    expect(tokens[6]).toEqual value: '*', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'storage.type.variable.ruby']
+    expect(tokens[7]).toEqual value: 'args', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'variable.parameter.function.ruby']
+
+    {tokens} = grammar.tokenizeLine('def a.b')
+    expect(tokens[0]).toEqual value: 'def', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'keyword.control.def.ruby']
+    expect(tokens[2]).toEqual value: 'a', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'entity.name.function.ruby']
+    expect(tokens[3]).toEqual value: '.', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'entity.name.function.ruby', 'punctuation.separator.method.ruby']
+    expect(tokens[4]).toEqual value: 'b', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'entity.name.function.ruby']
+
+    {tokens} = grammar.tokenizeLine('def self.b(*args)')
+    expect(tokens[0]).toEqual value: 'def', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'keyword.control.def.ruby']
+    expect(tokens[2]).toEqual value: 'self', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby', 'variable.language.self.ruby']
+    expect(tokens[3]).toEqual value: '.', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby', 'punctuation.separator.method.ruby']
+    expect(tokens[4]).toEqual value: 'b', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby']
+    expect(tokens[5]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.definition.parameters.ruby']
+    expect(tokens[6]).toEqual value: '*', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'storage.type.variable.ruby']
+    expect(tokens[7]).toEqual value: 'args', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'variable.parameter.function.ruby']
+    expect(tokens[8]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.definition.parameters.ruby']
+
+    {tokens} = grammar.tokenizeLine('def self.b *args')
+    expect(tokens[0]).toEqual value: 'def', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'keyword.control.def.ruby']
+    expect(tokens[2]).toEqual value: 'self', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby', 'variable.language.self.ruby']
+    expect(tokens[3]).toEqual value: '.', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby', 'punctuation.separator.method.ruby']
+    expect(tokens[4]).toEqual value: 'b', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'entity.name.function.ruby']
+    expect(tokens[6]).toEqual value: '*', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'storage.type.variable.ruby']
+    expect(tokens[7]).toEqual value: 'args', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'variable.parameter.function.ruby']
+
+    {tokens} = grammar.tokenizeLine('def self.b')
+    expect(tokens[0]).toEqual value: 'def', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'keyword.control.def.ruby']
+    expect(tokens[2]).toEqual value: 'self', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'entity.name.function.ruby', 'variable.language.self.ruby']
+    expect(tokens[3]).toEqual value: '.', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'entity.name.function.ruby', 'punctuation.separator.method.ruby']
+    expect(tokens[4]).toEqual value: 'b', scopes: ['source.ruby', 'meta.function.method.without-arguments.ruby', 'entity.name.function.ruby']
+
+  it "tokenizes , separator", ->
+    {tokens} = grammar.tokenizeLine('hash = {1 => \'one\', 2 => \'two\'}')
+    expect(tokens[0]).toEqual value: 'hash ', scopes: ['source.ruby']
+    expect(tokens[1]).toEqual value: '=', scopes: ['source.ruby', 'keyword.operator.assignment.ruby']
+    expect(tokens[3]).toEqual value: '{', scopes: ['source.ruby', 'punctuation.section.scope.begin.ruby']
+    expect(tokens[4]).toEqual value: '1', scopes: ['source.ruby', 'constant.numeric.ruby']
+    expect(tokens[6]).toEqual value: '=>', scopes: ['source.ruby', 'punctuation.separator.key-value.ruby']
+    expect(tokens[8]).toEqual value: '\'', scopes: ['source.ruby', 'string.quoted.single.ruby', 'punctuation.definition.string.begin.ruby']
+    expect(tokens[9]).toEqual value: 'one', scopes: ['source.ruby', 'string.quoted.single.ruby']
+    expect(tokens[10]).toEqual value: '\'', scopes: ['source.ruby', 'string.quoted.single.ruby', 'punctuation.definition.string.end.ruby']
+    expect(tokens[11]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.delimiter.ruby']
+    expect(tokens[13]).toEqual value: '2', scopes: ['source.ruby', 'constant.numeric.ruby']
+    expect(tokens[15]).toEqual value: '=>', scopes: ['source.ruby', 'punctuation.separator.key-value.ruby']
+    expect(tokens[17]).toEqual value: '\'', scopes: ['source.ruby', 'string.quoted.single.ruby', 'punctuation.definition.string.begin.ruby']
+    expect(tokens[18]).toEqual value: 'two', scopes: ['source.ruby', 'string.quoted.single.ruby']
+    expect(tokens[19]).toEqual value: '\'', scopes: ['source.ruby', 'string.quoted.single.ruby', 'punctuation.definition.string.end.ruby']
+    expect(tokens[20]).toEqual value: '}', scopes: ['source.ruby', 'punctuation.section.scope.end.ruby']
+
+    {tokens} = grammar.tokenizeLine('method(a,b)')
+    expect(tokens[0]).toEqual value: 'method', scopes: ['source.ruby']
+    expect(tokens[1]).toEqual value: '(', scopes: ['source.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[2]).toEqual value: 'a', scopes: ['source.ruby']
+    expect(tokens[3]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.delimiter.ruby']
+    expect(tokens[4]).toEqual value: 'b', scopes: ['source.ruby']
+    expect(tokens[5]).toEqual value: ')', scopes: ['source.ruby', 'punctuation.section.function.ruby']
+
 
   it "tokenizes %() style strings", ->
     {tokens} = grammar.tokenizeLine('%(te(s)t)')
@@ -276,7 +377,7 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[1]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
     expect(tokens[2]).toEqual value: 'test', scopes: ['source.ruby', 'string.regexp.interpolated.ruby']
     expect(tokens[3]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
-    expect(tokens[4]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.object.ruby']
+    expect(tokens[4]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.delimiter.ruby']
 
     {tokens} = grammar.tokenizeLine('[/test/]')
 
@@ -332,7 +433,7 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[8]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
     expect(tokens[9]).toEqual value: 'test', scopes: ['source.ruby', 'string.regexp.interpolated.ruby']
     expect(tokens[10]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
-    expect(tokens[11]).toEqual value: ';', scopes: ['source.ruby', 'punctuation.separator.statement.ruby']
+    expect(tokens[11]).toEqual value: ';', scopes: ['source.ruby', 'punctuation.terminator.statement.ruby']
 
     {tokens} = grammar.tokenizeLine('/test/ =~ "test"')
 
@@ -478,7 +579,7 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[2]).toEqual value: 'test', scopes: ['source.ruby', 'string.regexp.interpolated.ruby']
     expect(tokens[3]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
     expect(tokens[4]).toEqual value: ' ', scopes: ['source.ruby']
-    expect(tokens[5]).toEqual value: '=>', scopes: ['source.ruby', 'punctuation.separator.key-value']
+    expect(tokens[5]).toEqual value: '=>', scopes: ['source.ruby', 'punctuation.separator.key-value.ruby']
     expect(tokens[6]).toEqual value: ' ', scopes: ['source.ruby']
     expect(tokens[7]).toEqual value: '1', scopes: ['source.ruby', 'constant.numeric.ruby']
 
@@ -552,7 +653,7 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[1]).toEqual value: '/', scopes: ['source.ruby', 'keyword.operator.arithmetic.ruby']
     expect(tokens[2]).toEqual value: ' ', scopes: ['source.ruby']
     expect(tokens[3]).toEqual value: '2', scopes: ['source.ruby', 'constant.numeric.ruby']
-    expect(tokens[4]).toEqual value: ';', scopes: ['source.ruby', 'punctuation.separator.statement.ruby']
+    expect(tokens[4]).toEqual value: ';', scopes: ['source.ruby', 'punctuation.terminator.statement.ruby']
     expect(tokens[6]).toEqual value: '/=', scopes: ['source.ruby', 'keyword.operator.assignment.augmented.ruby']
     expect(tokens[7]).toEqual value: ' ', scopes: ['source.ruby']
     expect(tokens[8]).toEqual value: '2', scopes: ['source.ruby', 'constant.numeric.ruby']
@@ -587,36 +688,51 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[2]).toEqual value: '@', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
     expect(tokens[3]).toEqual value: 'private', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
 
-    {tokens} = grammar.tokenizeLine('# @deprecated Because I said so')
-    expect(tokens[0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
-    expect(tokens[1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
-    expect(tokens[2]).toEqual value: '@', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
-    expect(tokens[3]).toEqual value: 'deprecated', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
-    expect(tokens[4]).toEqual value: ' Because I said so', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    tokens = grammar.tokenizeLines '''
+      # @deprecated Because I said so,
+      #   end of discussion
+    '''
+    expect(tokens[0][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[0][1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
+    expect(tokens[0][2]).toEqual value: '@', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
+    expect(tokens[0][3]).toEqual value: 'deprecated', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
+    expect(tokens[0][4]).toEqual value: ' Because I said so,', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    expect(tokens[1][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[1][1]).toEqual value: '   end of discussion', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
 
-    {tokens} = grammar.tokenizeLine('# @raise [Bar] Baz')
-    expect(tokens[0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
-    expect(tokens[1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
-    expect(tokens[2]).toEqual value: '@', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
-    expect(tokens[3]).toEqual value: 'raise', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
-    expect(tokens[4]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
-    expect(tokens[5]).toEqual value: '[', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
-    expect(tokens[6]).toEqual value: 'Bar', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby']
-    expect(tokens[7]).toEqual value: ']', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
-    expect(tokens[8]).toEqual value: ' Baz', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    tokens = grammar.tokenizeLines '''
+      # @raise [AccountBalanceError] if the account does not have
+      #   sufficient funds to perform the transaction
+    '''
+    expect(tokens[0][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[0][1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
+    expect(tokens[0][2]).toEqual value: '@', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
+    expect(tokens[0][3]).toEqual value: 'raise', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
+    expect(tokens[0][4]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
+    expect(tokens[0][5]).toEqual value: '[', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
+    expect(tokens[0][6]).toEqual value: 'AccountBalanceError', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby']
+    expect(tokens[0][7]).toEqual value: ']', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
+    expect(tokens[0][8]).toEqual value: ' if the account does not have', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    expect(tokens[1][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[1][1]).toEqual value: '   sufficient funds to perform the transaction', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
 
-    {tokens} = grammar.tokenizeLine('# @param foo [Bar] Baz')
-    expect(tokens[0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
-    expect(tokens[1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
-    expect(tokens[2]).toEqual value: '@', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
-    expect(tokens[3]).toEqual value: 'param', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
-    expect(tokens[4]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
-    expect(tokens[5]).toEqual value: 'foo', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.parameter.yard.ruby']
-    expect(tokens[6]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
-    expect(tokens[7]).toEqual value: '[', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
-    expect(tokens[8]).toEqual value: 'Bar', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby']
-    expect(tokens[9]).toEqual value: ']', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
-    expect(tokens[10]).toEqual value: ' Baz', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    tokens = grammar.tokenizeLines '''
+      # @param value [Object] describe value param in a long way which
+      #   makes it multiline
+    '''
+    expect(tokens[0][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[0][1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
+    expect(tokens[0][2]).toEqual value: '@', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
+    expect(tokens[0][3]).toEqual value: 'param', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
+    expect(tokens[0][4]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
+    expect(tokens[0][5]).toEqual value: 'value', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.parameter.yard.ruby']
+    expect(tokens[0][6]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
+    expect(tokens[0][7]).toEqual value: '[', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
+    expect(tokens[0][8]).toEqual value: 'Object', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby']
+    expect(tokens[0][9]).toEqual value: ']', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
+    expect(tokens[0][10]).toEqual value: ' describe value param in a long way which', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    expect(tokens[1][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[1][1]).toEqual value: '   makes it multiline', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
 
     {tokens} = grammar.tokenizeLine('# @param [Bar] Baz')
     expect(tokens[0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
@@ -651,16 +767,21 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[7]).toEqual value: ']', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
     expect(tokens[8]).toEqual value: ' comment', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
 
-    {tokens} = grammar.tokenizeLine('# @!attribute [r] foo comment')
-    expect(tokens[0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
-    expect(tokens[1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
-    expect(tokens[2]).toEqual value: '@!', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
-    expect(tokens[3]).toEqual value: 'attribute', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
-    expect(tokens[4]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
-    expect(tokens[5]).toEqual value: '[', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
-    expect(tokens[6]).toEqual value: 'r', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby']
-    expect(tokens[7]).toEqual value: ']', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
-    expect(tokens[8]).toEqual value: ' foo comment', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    tokens = grammar.tokenizeLines '''
+      # @!attribute [r] count the number of items
+      #   present in the list
+    '''
+    expect(tokens[0][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[0][1]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby']
+    expect(tokens[0][2]).toEqual value: '@!', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.punctuation.yard.ruby']
+    expect(tokens[0][3]).toEqual value: 'attribute', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.keyword.yard.ruby']
+    expect(tokens[0][4]).toEqual value: ' ', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby']
+    expect(tokens[0][5]).toEqual value: '[', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
+    expect(tokens[0][6]).toEqual value: 'r', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby']
+    expect(tokens[0][7]).toEqual value: ']', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.yard.ruby', 'comment.line.type.yard.ruby', 'comment.line.punctuation.yard.ruby']
+    expect(tokens[0][8]).toEqual value: ' count the number of items', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
+    expect(tokens[1][0]).toEqual value: '#', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby', 'punctuation.definition.comment.ruby']
+    expect(tokens[1][1]).toEqual value: '   present in the list', scopes: ['source.ruby', 'comment.line.number-sign.ruby', 'comment.line.string.yard.ruby']
 
   it "tokenizes a method with *args properly", ->
     {tokens} = grammar.tokenizeLine('def method(*args)')
@@ -710,16 +831,18 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[8]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
     expect(tokens[9]).toEqual value: '2', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
     expect(tokens[10]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[12]).toEqual value: 'green', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
-    expect(tokens[15]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
-    expect(tokens[16]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[17]).toEqual value: '3', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
-    expect(tokens[18]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[20]).toEqual value: 'blue', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
-    expect(tokens[23]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
-    expect(tokens[24]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[25]).toEqual value: '4', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
-    expect(tokens[26]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[11]).toEqual value: ',', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.separator.delimiter.ruby']
+    expect(tokens[13]).toEqual value: 'green', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
+    expect(tokens[16]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
+    expect(tokens[17]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[18]).toEqual value: '3', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
+    expect(tokens[19]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[20]).toEqual value: ',', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.separator.delimiter.ruby']
+    expect(tokens[22]).toEqual value: 'blue', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
+    expect(tokens[25]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
+    expect(tokens[26]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[27]).toEqual value: '4', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
+    expect(tokens[28]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
 
   it "tokenizes a method with symbol: arg(paren), symbol: arg2(paren)... (no outer parens) properly", ->
     {tokens} = grammar.tokenizeLine('def method red: rand(2), green: rand(3), blue: rand(4)')
@@ -730,20 +853,22 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[8]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
     expect(tokens[9]).toEqual value: '2', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
     expect(tokens[10]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[12]).toEqual value: 'green', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
-    expect(tokens[15]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
-    expect(tokens[16]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[17]).toEqual value: '3', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
-    expect(tokens[18]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[20]).toEqual value: 'blue', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
-    expect(tokens[23]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
-    expect(tokens[24]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[25]).toEqual value: '4', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
-    expect(tokens[26]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[11]).toEqual value: ',', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.separator.delimiter.ruby']
+    expect(tokens[13]).toEqual value: 'green', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
+    expect(tokens[16]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
+    expect(tokens[17]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[18]).toEqual value: '3', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
+    expect(tokens[19]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[20]).toEqual value: ',', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.separator.delimiter.ruby']
+    expect(tokens[22]).toEqual value: 'blue', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.other.symbol.hashkey.parameter.function.ruby']
+    expect(tokens[25]).toEqual value: 'rand', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'support.function.kernel.ruby']
+    expect(tokens[26]).toEqual value: '(', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
+    expect(tokens[27]).toEqual value: '4', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'constant.numeric.ruby']
+    expect(tokens[28]).toEqual value: ')', scopes: ['source.ruby', 'meta.function.method.with-arguments.ruby', 'punctuation.section.function.ruby']
 
   it "tokenizes a stabby lambda properly", ->
     {tokens} = grammar.tokenizeLine('method_name -> { puts "A message"} do')
-    expect(tokens[1]).toEqual value: '->', scopes: ['source.ruby', 'support.function.kernel.ruby']
+    expect(tokens[1]).toEqual value: '->', scopes: ['source.ruby', 'support.function.kernel.arrow.ruby']
 
   it "tokenizes a simple do block properly", ->
     {tokens} = grammar.tokenizeLine('do |foo| ')
@@ -763,11 +888,11 @@ describe "TextMate Ruby grammar", ->
     expect(tokens[10]).toEqual value: '||', scopes: ['source.ruby', 'keyword.operator.logical.ruby']
     expect(tokens[12]).toEqual value: 'b', scopes: ['source.ruby', 'variable.other.block.ruby']
     expect(tokens[13]).toEqual value: ')', scopes: ['source.ruby', 'punctuation.section.function.ruby']
-    expect(tokens[14]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.object.ruby']
+    expect(tokens[14]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.delimiter.ruby']
     expect(tokens[16]).toEqual value: 'hash', scopes: ['source.ruby', 'variable.other.block.ruby']
     expect(tokens[18]).toEqual value: '=', scopes: ['source.ruby', 'keyword.operator.assignment.ruby']
     expect(tokens[20]).toEqual value: 'config', scopes: ['source.ruby', 'variable.other.block.ruby']
-    expect(tokens[21]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.object.ruby']
+    expect(tokens[21]).toEqual value: ',', scopes: ['source.ruby', 'punctuation.separator.delimiter.ruby']
     expect(tokens[23]).toEqual value: 'create', scopes: ['source.ruby', 'constant.other.symbol.hashkey.ruby']
     expect(tokens[24]).toEqual value: ':', scopes: ['source.ruby', 'constant.other.symbol.hashkey.ruby', 'punctuation.definition.constant.hashkey.ruby']
     expect(tokens[26]).toEqual value: 'false', scopes: ['source.ruby', 'constant.language.boolean.ruby']
